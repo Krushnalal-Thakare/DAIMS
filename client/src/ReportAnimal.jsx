@@ -94,7 +94,7 @@ function ReportAnimal({ setPage }) {
       data.append("photo", photo);
 
       const response = await axios.post(
-        "http://localhost:5000/complaint",
+        "https://daims.onrender.com/complaint",
         data
       );
 

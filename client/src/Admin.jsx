@@ -12,7 +12,7 @@ function Admin({ onLogout }) {
     const area = localStorage.getItem("adminArea");
 
 const res = await axios.get(
-  `http://localhost:5000/complaints/${area}`
+  `https://daims.onrender.com/complaints/${area}`
 );
 
 setComplaints(res.data);
@@ -20,7 +20,7 @@ setComplaints(res.data);
   };
 
   const updateStatus = async (id, status) => {
-    await axios.put(`http://localhost:5000/complaint/${id}`, { status });
+    await axios.put(`https://daims.onrender.com/complaint/${id}`, { status });
     fetchComplaints();
   };
 
@@ -82,7 +82,7 @@ setComplaints(res.data);
 
             {c.photo && (
               <img
-                src={`http://localhost:5000/uploads/${c.photo}`}
+                src={`https://daims.onrender.com/uploads/${c.photo}`}
                 alt="animal"
                 className="img-fluid rounded"
                 style={{ maxHeight: "300px" }}

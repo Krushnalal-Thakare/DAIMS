@@ -23,7 +23,7 @@ function AdminRegister({ setPage }) {
   const registerAdmin = async () => {
 
     const res = await axios.post(
-      "http://localhost:5000/admin/register",
+      "https://daims.onrender.com/admin/register",
       admin
     );
 
