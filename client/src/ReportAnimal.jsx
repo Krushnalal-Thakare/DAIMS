@@ -180,27 +180,27 @@ function ReportAnimal({ setPage }) {
             onChange={handleChange}
           />
 
-<input
-  className="form-control mb-3"
-  type="text"
-  name="animal"
-  placeholder="Animal Name"
-  value={formData.animal}
-  onChange={handleChange}
-/>
-<textarea
-  className="form-control mb-3"
-  rows="4"
-  name="description"
-  placeholder="Description"
-  value={formData.description}
-  onChange={handleChange}
-/>
+          <input
+            className="form-control mb-3"
+            type="text"
+            name="animal"
+            placeholder="Animal Name"
+            value={formData.animal}
+            onChange={handleChange}
+          />
+          <textarea
+            className="form-control mb-3"
+            rows="4"
+            name="description"
+            placeholder="Description"
+            value={formData.description}
+            onChange={handleChange}
+          />
           <input
             className="form-control mb-3"
             type="text"
             name="Area"
-            placeholder="District OR City/village"
+            placeholder="Area"
             value={formData.area}
             onChange={handleChange}
           />
@@ -213,7 +213,7 @@ function ReportAnimal({ setPage }) {
             capture="environment"
             onChange={(e) => setPhoto(e.target.files[0])}
           />
-          
+
 
           <button
             className="btn btn-warning mb-3"
