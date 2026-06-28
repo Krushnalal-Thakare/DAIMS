@@ -254,17 +254,16 @@ app.put("/complaint/:id", async (req, res) => {
     }
 
     // Reporter ला Email
-    if (
-      req.body.status === "Completed" &&
-      complaint.email
-    ) {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: complaint.email,
+    
+    if (req.body.status === "Completed" && complaint.email) {
 
-        subject: "Animal Complaint Completed",
+  console.log("Sending mail to:", complaint.email);
 
-        text: `
+  const info = await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: complaint.email,
+    subject: "Animal Complaint Completed",
+    text: `
 Dear ${complaint.name},
 
 Thank you for reporting the animal.
@@ -276,9 +275,12 @@ Animal : ${complaint.animal}
 Status : Completed
 
 DAIMS Team
-`,
-      });
-    }
+`
+  });
+
+  console.log("Mail Sent Successfully");
+  console.log(info);
+}
 
     res.json({
       success: true,
