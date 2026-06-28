@@ -4,6 +4,8 @@ const multer = require("multer");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+console.log(process.env.EMAIL_USER);
+console.log(process.env.EMAIL_PASS);
 
 const Complaint = require("./models/Complaint");
 const Admin = require("./models/Admin");
@@ -26,6 +28,7 @@ mongoose
 /* ==========================
    Email
 ========================== */
+
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
