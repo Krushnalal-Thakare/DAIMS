@@ -199,8 +199,8 @@ function ReportAnimal({ setPage }) {
           <input
             className="form-control mb-3"
             type="text"
-            name="Area"
-            placeholder="Area"
+            name="area"
+            placeholder="Area or District or City or Village  "
             value={formData.area}
             onChange={handleChange}
           />
