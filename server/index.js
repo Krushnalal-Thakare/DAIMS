@@ -38,6 +38,13 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("Transport Error:", error);
+  } else {
+    console.log("Email Server Ready");
+  }
+});
 
 /* ==========================
    Multer
@@ -222,6 +229,7 @@ https://www.google.com/maps?q=${req.body.latitude},${req.body.longitude}
 /* ==========================
    Get All Complaints
 ========================== */
+
 
 app.get("/complaints/:area", async (req, res) => {
   try {
