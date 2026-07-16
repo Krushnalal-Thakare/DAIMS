@@ -144,34 +144,35 @@ app.post(
         name: req.body.name,
         mobile: req.body.mobile,
         email: req.body.email,
-
         animal: req.body.animal,
         description: req.body.description,
-
         area: req.body.area,
-
         latitude: req.body.latitude,
         longitude: req.body.longitude,
-
         photo: req.file ? req.file.filename : "",
       });
 
       await complaint.save();
 
-      // Find Admin of Same Area
+      console.log("Complaint Saved");
 
+      // Find Admin
       const admin = await Admin.findOne({
         area: req.body.area,
       });
 
+      console.log("Complaint Area:", req.body.area);
+      console.log("Admin Found:", admin);
+
       if (admin) {
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: admin.email,
+        try {
+          console.log("Sending Email To:", admin.email);
 
-          subject: "New Animal Complaint",
-
-          text: `
+          const info = await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: admin.email,
+            subject: "New Animal Complaint",
+            text: `
 New Animal Complaint
 
 Area : ${req.body.area}
@@ -192,7 +193,16 @@ Location :
 
 https://www.google.com/maps?q=${req.body.latitude},${req.body.longitude}
 `,
-        });
+          });
+
+          console.log("Mail Sent Successfully");
+          console.log(info);
+        } catch (mailErr) {
+          console.log("Mail Error");
+          console.log(mailErr);
+        }
+      } else {
+        console.log("No Admin Found For This Area");
       }
 
       res.json({
