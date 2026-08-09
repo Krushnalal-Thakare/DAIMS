@@ -76,7 +76,7 @@ function App() {
       </div>
 
       <footer className="bg-dark text-white text-center p-2">
-        © 2026 DAIMS System By krushnalal
+        © 2026 DAIMS System By krushnalal Thakare 
       </footer>
     </>
   );
