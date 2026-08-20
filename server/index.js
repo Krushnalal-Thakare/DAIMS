@@ -299,6 +299,35 @@ Status : Completed
 DAIMS Team
 `
   });
+  /* ==========================
+   Delete Complaint
+========================== */
+
+app.delete("/complaint/:id", async (req, res) => {
+  try {
+    const complaint = await Complaint.findByIdAndDelete(req.params.id);
+
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: "Complaint Not Found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Complaint Deleted Successfully",
+    });
+
+  } catch (err) {
+    console.log("Delete Error:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Error Deleting Complaint",
+    });
+  }
+});
 
   console.log("Mail Sent Successfully");
   console.log(info);
