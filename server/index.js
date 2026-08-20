@@ -14,47 +14,39 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-/* ==========================
-   MongoDB
-========================== */
+// ==========================
+// MongoDB
+// ==========================
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .then(() => {
+    console.log("MongoDB Connected");
+  })
+  .catch((err) => {
+    console.log("MongoDB Error:", err);
+  });
 
-/* ==========================
-   Email
-========================== */
-
+// ==========================
+// Email
+// ==========================
 
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
+  host: process.env.EMAIL_HOST || "smtp.gmail.com",
+  port: Number(process.env.EMAIL_PORT) || 587,
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-});
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("SMTP ERROR:", error);
-  } else {
-    console.log("SMTP SERVER READY");
-  }
-});
-transporter.verify(function (error, success) {
-  if (error) {
-    console.log("Transport Error:", error);
-  } else {
-    console.log("Email Server Ready");
-  }
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
-/* ==========================
-   Multer
-========================== */
+// ==========================
+// Multer
+// ==========================
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -68,17 +60,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-/* ==========================
-   Home
-========================== */
+// ==========================
+// Home
+// ==========================
 
 app.get("/", (req, res) => {
   res.send("DAIMS Server Running");
 });
 
-/* ==========================
-   Admin Register
-========================== */
+// ==========================
+// Admin Register
+// ==========================
 
 app.post("/admin/register", async (req, res) => {
   try {
@@ -102,7 +94,7 @@ app.post("/admin/register", async (req, res) => {
       message: "Admin Registered Successfully",
     });
   } catch (err) {
-    console.log(err);
+    console.log("Register Error:", err);
 
     res.status(500).json({
       success: false,
@@ -111,9 +103,9 @@ app.post("/admin/register", async (req, res) => {
   }
 });
 
-/* ==========================
-   Admin Login
-========================== */
+// ==========================
+// Admin Login
+// ==========================
 
 app.post("/admin/login", async (req, res) => {
   try {
@@ -126,7 +118,7 @@ app.post("/admin/login", async (req, res) => {
       res.json({
         success: true,
         message: "Login Successful",
-        admin:admin
+        admin: admin,
       });
     } else {
       res.json({
@@ -135,7 +127,7 @@ app.post("/admin/login", async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    console.log("Login Error:", err);
 
     res.status(500).json({
       success: false,
@@ -144,9 +136,9 @@ app.post("/admin/login", async (req, res) => {
   }
 });
 
-/* ==========================
-   Save Complaint
-========================== */
+// ==========================
+// Save Complaint
+// ==========================
 
 app.post(
   "/complaint",
@@ -168,51 +160,50 @@ app.post(
       await complaint.save();
 
       console.log("Complaint Saved");
+      console.log("Complaint Area:", req.body.area);
 
-      // Find Admin
+      // Find admin from same area
       const admin = await Admin.findOne({
         area: req.body.area,
       });
 
-      console.log("Complaint Area:", req.body.area);
       console.log("Admin Found:", admin);
 
-      if (admin) {
+      if (admin && admin.email) {
         try {
           console.log("Sending Email To:", admin.email);
 
-          const info = await transporter.sendMail({
+          await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: admin.email,
             subject: "New Animal Complaint",
+
             text: `
 New Animal Complaint
 
-Area : ${req.body.area}
+Area: ${req.body.area}
 
-Animal : ${req.body.animal}
+Animal: ${req.body.animal}
 
-Reporter : ${req.body.name}
+Reporter: ${req.body.name}
 
-Mobile : ${req.body.mobile}
+Mobile: ${req.body.mobile}
 
-Email : ${req.body.email}
+Email: ${req.body.email}
 
-Description :
+Description:
 
 ${req.body.description}
 
-Location :
+Location:
 
 https://www.google.com/maps?q=${req.body.latitude},${req.body.longitude}
 `,
           });
 
-          console.log("Mail Sent Successfully");
-          console.log(info);
-        } catch (mailErr) {
-          console.log("Mail Error");
-          console.log(mailErr);
+          console.log("Admin Email Sent Successfully");
+        } catch (emailError) {
+          console.log("Admin Email Error:", emailError);
         }
       } else {
         console.log("No Admin Found For This Area");
@@ -223,7 +214,7 @@ https://www.google.com/maps?q=${req.body.latitude},${req.body.longitude}
         message: "Complaint Saved Successfully",
       });
     } catch (err) {
-      console.log(err);
+      console.log("Complaint Error:", err);
 
       res.status(500).json({
         success: false,
@@ -232,20 +223,20 @@ https://www.google.com/maps?q=${req.body.latitude},${req.body.longitude}
     }
   }
 );
-/* ==========================
-   Get All Complaints
-========================== */
 
+// ==========================
+// Get Complaints By Area
+// ==========================
 
 app.get("/complaints/:area", async (req, res) => {
   try {
     const complaints = await Complaint.find({
-    area: req.params.area
-  });
+      area: req.params.area,
+    });
 
     res.json(complaints);
   } catch (err) {
-    console.log(err);
+    console.log("Fetch Complaints Error:", err);
 
     res.status(500).json({
       message: "Error Fetching Complaints",
@@ -253,9 +244,44 @@ app.get("/complaints/:area", async (req, res) => {
   }
 });
 
-/* ==========================
-   Update Complaint Status
-========================== */
+// ==========================
+// DELETE COMPLAINT
+// ==========================
+
+app.delete("/complaint/:id", async (req, res) => {
+  try {
+    console.log("DELETE REQUEST:", req.params.id);
+
+    const complaint = await Complaint.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: "Complaint Not Found",
+      });
+    }
+
+    console.log("Complaint Deleted:", complaint._id);
+
+    res.json({
+      success: true,
+      message: "Complaint Deleted Successfully",
+    });
+  } catch (err) {
+    console.log("DELETE ERROR:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Error Deleting Complaint",
+    });
+  }
+});
+
+// ==========================
+// Update Complaint Status
+// ==========================
 
 app.put("/complaint/:id", async (req, res) => {
   try {
@@ -271,72 +297,68 @@ app.put("/complaint/:id", async (req, res) => {
 
     if (!complaint) {
       return res.status(404).json({
+        success: false,
         message: "Complaint Not Found",
       });
     }
 
-    // Reporter ला Email
-    
-    if (req.body.status === "Completed" && complaint.email) {
+    // Send email to reporter when completed
+    if (
+      req.body.status === "Completed" &&
+      complaint.email
+    ) {
+      try {
+        console.log(
+          "Sending completion mail to:",
+          complaint.email
+        );
 
-  console.log("Sending mail to:", complaint.email);
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: complaint.email,
+          subject: "Animal Complaint Completed",
 
-  const info = await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: complaint.email,
-    subject: "Animal Complaint Completed",
-    text: `
+          text: `
 Dear ${complaint.name},
 
 Thank you for reporting the animal.
 
 Your complaint has been completed successfully.
 
-Animal : ${complaint.animal}
+Animal: ${complaint.animal}
 
-Status : Completed
+Status: Completed
 
 DAIMS Team
-`
-  });
-  /* ==========================
-   Delete Complaint
-========================== */
+`,
+        });
 
-app.delete("/complaint/:id", async (req, res) => {
-  try {
-    console.log("DELETE REQUEST:", req.params.id);
-
-    const complaint = await Complaint.findByIdAndDelete(req.params.id);
-
-    if (!complaint) {
-      return res.status(404).json({
-        success: false,
-        message: "Complaint Not Found",
-      });
+        console.log("Completion Email Sent Successfully");
+      } catch (emailError) {
+        console.log(
+          "Completion Email Error:",
+          emailError
+        );
+      }
     }
-
-    console.log("Complaint Deleted:", complaint._id);
 
     res.json({
       success: true,
-      message: "Complaint Deleted Successfully",
+      message: "Status Updated Successfully",
     });
-
   } catch (err) {
-    console.log("DELETE ERROR:", err);
+    console.log("Status Update Error:", err);
 
     res.status(500).json({
       success: false,
-      message: "Error Deleting Complaint",
-      error: err.message,
+      message: "Error Updating Status",
     });
   }
 });
 
-/* ==========================
-   Start Server
-========================== */
+// ==========================
+// Start Server
+// ==========================
 
 const PORT = process.env.PORT || 5000;
 
