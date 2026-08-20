@@ -61,30 +61,43 @@ function Admin({ onLogout }) {
   };
 
   const deleteComplaint = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this complaint?"
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this complaint?"
+  );
+
+  if (!confirmDelete) {
+    return;
+  }
+
+  try {
+    console.log("Deleting complaint:", id);
+
+    const response = await axios.delete(
+      `https://daims.onrender.com/complaint/${id}`
     );
 
-    if (!confirmDelete) return;
+    console.log("Delete response:", response.data);
 
-    try {
-      const response = await axios.delete(
-        `https://daims.onrender.com/complaint/${id}`
+    alert(response.data.message);
+
+    await fetchComplaints();
+
+  } catch (error) {
+    console.log("DELETE FRONTEND ERROR:", error);
+
+    if (error.response) {
+      console.log("Status:", error.response.status);
+      console.log("Data:", error.response.data);
+
+      alert(
+        error.response.data.message ||
+        "Error To Delete Complaint"
       );
-
-      alert(response.data.message);
-      fetchComplaints();
-
-    } catch (error) {
-      console.log("Delete Complaint Error:", error);
-
-      if (error.response) {
-        alert(error.response.data.message || "Error Deleting Complaint");
-      } else {
-        alert("Server Error");
-      }
+    } else {
+      alert("Server Error");
     }
-  };
+  }
+};
 
   const pending = complaints.filter((c) => c.status === "Pending").length;
   const processing = complaints.filter((c) => c.status === "In Process").length;

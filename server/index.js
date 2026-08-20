@@ -305,6 +305,8 @@ DAIMS Team
 
 app.delete("/complaint/:id", async (req, res) => {
   try {
+    console.log("DELETE REQUEST:", req.params.id);
+
     const complaint = await Complaint.findByIdAndDelete(req.params.id);
 
     if (!complaint) {
@@ -314,35 +316,20 @@ app.delete("/complaint/:id", async (req, res) => {
       });
     }
 
+    console.log("Complaint Deleted:", complaint._id);
+
     res.json({
       success: true,
       message: "Complaint Deleted Successfully",
     });
 
   } catch (err) {
-    console.log("Delete Error:", err);
+    console.log("DELETE ERROR:", err);
 
     res.status(500).json({
       success: false,
       message: "Error Deleting Complaint",
-    });
-  }
-});
-
-  console.log("Mail Sent Successfully");
-  console.log(info);
-}
-
-    res.json({
-      success: true,
-      message: "Status Updated Successfully",
-    });
-  } catch (err) {
-    console.log(err);
-
-    res.status(500).json({
-      success: false,
-      message: "Error Updating Status",
+      error: err.message,
     });
   }
 });
