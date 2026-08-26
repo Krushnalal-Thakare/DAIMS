@@ -105,7 +105,7 @@ function App() {
           className="card shadow-lg p-5 text-center"
           style={{
             width: "600px",
-            backgroundColor: "rgba(255,255,255,0.92)",
+            backgroundColor: "rgba(255,255,255,0.45)",
             borderRadius: "20px",
           }}
         >
