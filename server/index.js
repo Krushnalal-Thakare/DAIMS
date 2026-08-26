@@ -150,6 +150,7 @@ app.post(
         mobile: req.body.mobile,
         email: req.body.email,
         animal: req.body.animal,
+        condition: req.body.condition,
         description: req.body.description,
         area: req.body.area,
         latitude: req.body.latitude,

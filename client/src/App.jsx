@@ -15,12 +15,14 @@ function App() {
       adminReg: "Admin Registration",
       adminLogin: "Admin Login",
     },
+
     mr: {
       title: "मृत व जखमी प्राणी व्यवस्थापन प्रणाली",
       report: "प्राणी रिपोर्ट करा",
       adminReg: "प्रशासक नोंदणी",
       adminLogin: "प्रशासक लॉगिन",
     },
+
     hi: {
       title: "मृत और घायल पशु प्रबंधन प्रणाली",
       report: "जानवर रिपोर्ट करें",
@@ -29,12 +31,13 @@ function App() {
     },
   };
 
+  // Pages
   if (page === "report") {
     return <ReportAnimal setPage={setPage} />;
   }
 
   if (page === "register") {
-    return <AdminRegister setPage={setPage} />;
+    return <AdminReg setPage={setPage} />;
   }
 
   if (page === "login") {
@@ -64,12 +67,17 @@ function App() {
       }}
     >
       {/* TOP NAVBAR */}
+
       <nav className="navbar navbar-dark bg-dark px-3">
         <span className="navbar-brand fw-bold">
           🐾 DAIMS
         </span>
 
-        <div>
+        <div className="d-flex align-items-center">
+
+          
+          {/* Languages */}
+
           <button
             className="btn btn-light btn-sm me-2"
             onClick={() => setLang("en")}
@@ -90,10 +98,38 @@ function App() {
           >
             HI
           </button>
+
+          /n
+            <button
+            className="btn btn-link text-white p-0 me-3"
+            style={{
+              fontSize: "13px",
+              textDecoration: "none",
+            }}
+            onClick={() => setPage("register")}
+          >
+            {text[lang].adminReg}
+            
+          </button>
+
+          {/* Admin Login */}
+
+          <button
+            className="btn btn-link text-white p-0 me-3"
+            style={{
+              fontSize: "13px",
+              textDecoration: "none",
+            }}
+            onClick={() => setPage("login")}
+          >
+            {text[lang].adminLogin}
+          </button>
+
         </div>
       </nav>
 
       {/* HOME */}
+
       <div
         className="container d-flex justify-content-center align-items-center"
         style={{
@@ -117,6 +153,8 @@ function App() {
             {text[lang].title}
           </h4>
 
+          {/* Report Animal */}
+
           <button
             className="btn btn-success m-2"
             onClick={() => setPage("report")}
@@ -124,26 +162,15 @@ function App() {
             🐾 {text[lang].report}
           </button>
 
-          <button
-            className="btn btn-dark m-2"
-            onClick={() => setPage("register")}
-          >
-            👤 {text[lang].adminReg}
-          </button>
-
-          <button
-            className="btn btn-primary m-2"
-            onClick={() => setPage("login")}
-          >
-            🔐 {text[lang].adminLogin}
-          </button>
         </div>
       </div>
 
       {/* FOOTER */}
+
       <footer className="bg-dark text-white text-center p-2">
         © 2026 DAIMS System By Krushnalal Thakare
       </footer>
+
     </div>
   );
 }

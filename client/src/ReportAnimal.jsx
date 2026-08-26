@@ -1,17 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 
-
 function ReportAnimal({ setPage }) {
-
-
-
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
     email: "",
     area: "",
     animal: "",
+    condition: "",
     description: ""
   });
 
@@ -30,41 +27,33 @@ function ReportAnimal({ setPage }) {
   };
 
   const getLocation = () => {
-
     if (!navigator.geolocation) {
       alert("Geolocation is not supported");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-
       (position) => {
-
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
         });
-
       },
-
       () => {
         alert("Please Allow Location Permission");
       }
-
     );
-
   };
 
   const submitComplaint = async () => {
-
     try {
-
       if (
         !formData.name ||
         !formData.mobile ||
         !formData.email ||
         !formData.area ||
         !formData.animal ||
+        !formData.condition ||
         !formData.description
       ) {
         alert("Please Fill All Fields");
@@ -88,6 +77,7 @@ function ReportAnimal({ setPage }) {
       data.append("email", formData.email);
       data.append("area", formData.area);
       data.append("animal", formData.animal);
+      data.append("condition", formData.condition);
       data.append("description", formData.description);
       data.append("latitude", location.latitude);
       data.append("longitude", location.longitude);
@@ -106,6 +96,7 @@ function ReportAnimal({ setPage }) {
         email: "",
         area: "",
         animal: "",
+        condition: "",
         description: ""
       });
 
@@ -117,7 +108,6 @@ function ReportAnimal({ setPage }) {
       });
 
     } catch (error) {
-
       console.log(error);
 
       if (error.response) {
@@ -125,9 +115,7 @@ function ReportAnimal({ setPage }) {
       } else {
         alert("Server Error");
       }
-
     }
-
   };
 
   return (
@@ -137,8 +125,8 @@ function ReportAnimal({ setPage }) {
       </div>
 
       <div className="container mt-3">
-        <div className="text-start">
 
+        <div className="text-start">
           <button
             className="btn btn-secondary mb-3"
             onClick={() => setPage("home")}
@@ -153,6 +141,7 @@ function ReportAnimal({ setPage }) {
             Report Animal
           </h3>
 
+          {/* Name */}
           <input
             className="form-control mb-3"
             type="text"
@@ -162,6 +151,7 @@ function ReportAnimal({ setPage }) {
             onChange={handleChange}
           />
 
+          {/* Mobile */}
           <input
             className="form-control mb-3"
             type="text"
@@ -171,6 +161,7 @@ function ReportAnimal({ setPage }) {
             onChange={handleChange}
           />
 
+          {/* Email */}
           <input
             className="form-control mb-3"
             type="email"
@@ -180,6 +171,7 @@ function ReportAnimal({ setPage }) {
             onChange={handleChange}
           />
 
+          {/* Animal */}
           <input
             className="form-control mb-3"
             type="text"
@@ -188,6 +180,47 @@ function ReportAnimal({ setPage }) {
             value={formData.animal}
             onChange={handleChange}
           />
+
+          {/* Animal Condition */}
+          <div className="mb-3">
+
+           
+            <div>
+
+              <div className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="condition"
+                  value="Dead"
+                  checked={formData.condition === "Dead"}
+                  onChange={handleChange}
+                />
+
+                <label className="form-check-label">
+                  Dead
+                </label>
+              </div>
+
+              <div className="form-check form-check-inline">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="condition"
+                  value="Injured"
+                  checked={formData.condition === "Injured"}
+                  onChange={handleChange}
+                />
+
+                <label className="form-check-label">
+                  Injured
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Description */}
           <textarea
             className="form-control mb-3"
             rows="4"
@@ -196,16 +229,18 @@ function ReportAnimal({ setPage }) {
             value={formData.description}
             onChange={handleChange}
           />
+
+          {/* Area */}
           <input
             className="form-control mb-3"
             type="text"
             name="area"
-            placeholder="Area or District or City or Village  "
+            placeholder="Area or District or City or Village"
             value={formData.area}
             onChange={handleChange}
           />
 
-
+          {/* Photo */}
           <input
             className="form-control mb-3"
             type="file"
@@ -214,7 +249,7 @@ function ReportAnimal({ setPage }) {
             onChange={(e) => setPhoto(e.target.files[0])}
           />
 
-
+          {/* Location */}
           <button
             className="btn btn-warning mb-3"
             onClick={getLocation}
@@ -222,9 +257,15 @@ function ReportAnimal({ setPage }) {
             📍 Get Current Location
           </button>
 
-          <p><b>Latitude:</b> {location.latitude}</p>
-          <p><b>Longitude:</b> {location.longitude}</p>
+          <p>
+            <b>Latitude:</b> {location.latitude}
+          </p>
 
+          <p>
+            <b>Longitude:</b> {location.longitude}
+          </p>
+
+          {/* Submit */}
           <button
             className="btn btn-success w-100"
             onClick={submitComplaint}
@@ -233,7 +274,6 @@ function ReportAnimal({ setPage }) {
           </button>
 
         </div>
-
       </div>
     </>
   );
