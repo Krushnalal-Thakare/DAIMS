@@ -67,106 +67,114 @@ function App() {
         flexDirection: "column",
       }}
     >
-      {/* TOP NAVBAR */}
+     <nav className="navbar navbar-dark bg-dark px-3">
+  <span className="navbar-brand fw-bold">
+    🐾 DAIMS
+  </span>
 
-      <nav className="navbar navbar-dark bg-dark px-3">
-        <span className="navbar-brand fw-bold">
-          🐾 DAIMS
-        </span>
+  <div className="d-flex align-items-center flex-wrap gap-2">
 
-        <div className="d-flex align-items-center">
+    <button
+      type="button"
+      className="btn btn-link text-white p-1"
+      style={{
+        fontSize: "12px",
+        textDecoration: "none",
+        position: "relative",
+        zIndex: 20,
+      }}
+      onClick={() => {
+        console.log("Admin Registration clicked");
+        setPage("register");
+      }}
+    >
+      Admin Registration
+    </button>
 
-          
-          {/* Languages */}
+    <button
+      type="button"
+      className="btn btn-link text-white p-1"
+      style={{
+        fontSize: "12px",
+        textDecoration: "none",
+        position: "relative",
+        zIndex: 20,
+      }}
+      onClick={() => {
+        console.log("Admin Login clicked");
+        setPage("login");
+      }}
+    >
+      Admin Login
+    </button>
 
-          <button
-            className="btn btn-light btn-sm me-2"
-            onClick={() => setLang("en")}
-          >
-            EN
-          </button>
+    <button
+      type="button"
+      className="btn btn-light btn-sm"
+      onClick={() => setLang("en")}
+    >
+      EN
+    </button>
 
-          <button
-            className="btn btn-light btn-sm me-2"
-            onClick={() => setLang("mr")}
-          >
-            MR
-          </button>
+    <button
+      type="button"
+      className="btn btn-light btn-sm"
+      onClick={() => setLang("mr")}
+    >
+      MR
+    </button>
 
-          <button
-            className="btn btn-light btn-sm"
-            onClick={() => setLang("hi")}
-          >
-            HI
-          </button>
+    <button
+      type="button"
+      className="btn btn-light btn-sm"
+      onClick={() => setLang("hi")}
+    >
+      HI
+    </button>
 
-          /n
-            <button
-  className="btn btn-link text-white p-0 me-3"
-  style={{
-    fontSize: "13px",
-    textDecoration: "none"
-  }}
-  onClick={() => setPage("register")}
->
-  Admin Reg
-</button>
-            
-          
-
-          {/* Admin Login */}
-
-          <button
-            className="btn btn-link text-white p-0 me-3"
-            style={{
-              fontSize: "13px",
-              textDecoration: "none",
-            }}
-            onClick={() => setPage("login")}
-          >
-            {text[lang].adminLogin}
-          </button>
-
-        </div>
-      </nav>
-
+  </div>
+</nav>
       {/* HOME */}
+<div
+  className="container-fluid d-flex justify-content-center align-items-center px-3"
+  style={{
+    flex: 1,
+    minHeight: "80vh",
+  }}
+>
+  <div
+    className="card shadow-lg p-4 p-md-5 text-center"
+    style={{
+      width: "100%",
+      maxWidth: "600px",
+      backgroundColor: "rgba(255,255,255,0.90)",
+      borderRadius: "20px",
+      position: "relative",
+      zIndex: 10,
+    }}
+  >
+    <h1 className="mb-3">
+      🐾 DAIMS
+    </h1>
 
-      <div
-        className="container d-flex justify-content-center align-items-center"
-        style={{
-          flex: 1,
-          minHeight: "80vh",
-        }}
-      >
-        <div
-          className="card shadow-lg p-5 text-center"
-          style={{
-            width: "600px",
-            backgroundColor: "rgba(255,255,255,0.45)",
-            borderRadius: "20px",
-          }}
-        >
-          <h1 className="mb-3">
-            🐾 DAIMS
-          </h1>
+    <h4 className="mb-4">
+      {text[lang].title}
+    </h4>
 
-          <h4 className="mb-4">
-            {text[lang].title}
-          </h4>
+    {/* REPORT BUTTON */}
+    <button
+      type="button"
+      className="btn btn-success w-100 mb-3"
+      onClick={() => {
+        console.log("Report clicked");
+        setPage("report");
+      }}
+    >
+      🐾 {text[lang].report}
+    </button>
 
-          {/* Report Animal */}
-
-          <button
-            className="btn btn-success m-2"
-            onClick={() => setPage("report")}
-          >
-            🐾 {text[lang].report}
-          </button>
-
-        </div>
-      </div>
-
+  </div>
+</div>
       {/* FOOTER */}
 
       <footer className="bg-dark text-white text-center p-2">
