@@ -4,6 +4,7 @@ import AdminRegister from "./AdminRegister";
 import AdminLogin from "./AdminLogin";
 import Admin from "./Admin";
 
+
 function App() {
   const [page, setPage] = useState("home");
   const [lang, setLang] = useState("en");
@@ -37,7 +38,7 @@ function App() {
   }
 
   if (page === "register") {
-    return <AdminReg setPage={setPage} />;
+    return <AdminRegister setPage={setPage} />;
   }
 
   if (page === "login") {
@@ -101,16 +102,17 @@ function App() {
 
           /n
             <button
-            className="btn btn-link text-white p-0 me-3"
-            style={{
-              fontSize: "13px",
-              textDecoration: "none",
-            }}
-            onClick={() => setPage("register")}
-          >
-            {text[lang].adminReg}
+  className="btn btn-link text-white p-0 me-3"
+  style={{
+    fontSize: "13px",
+    textDecoration: "none"
+  }}
+  onClick={() => setPage("register")}
+>
+  Admin Reg
+</button>
             
-          </button>
+          
 
           {/* Admin Login */}
 
