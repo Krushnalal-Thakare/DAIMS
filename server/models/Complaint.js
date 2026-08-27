@@ -11,6 +11,12 @@ const complaintSchema = new mongoose.Schema({
   area:String,
   photo: String,
   email: String,
+  
+  condition: {
+  type: String,
+  enum: ["Dead", "Injured"],
+  required: true
+},
 
   status: {
     type: String,

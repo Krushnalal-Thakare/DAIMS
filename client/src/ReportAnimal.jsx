@@ -1,34 +1,37 @@
 import { useState } from "react";
 import axios from "axios";
+import "./ReportAnimal.css";
 
 function ReportAnimal({ setPage }) {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
     email: "",
-    area: "",
     animal: "",
     condition: "",
-    description: ""
+    description: "",
+    area: "",
   });
 
   const [photo, setPhoto] = useState(null);
 
   const [location, setLocation] = useState({
     latitude: "",
-    longitude: ""
+    longitude: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const getLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported");
+      alert("Geolocation is not supported by your browser.");
       return;
     }
 
@@ -36,49 +39,59 @@ function ReportAnimal({ setPage }) {
       (position) => {
         setLocation({
           latitude: position.coords.latitude,
-          longitude: position.coords.longitude
+          longitude: position.coords.longitude,
         });
+
+        alert("Location captured successfully.");
       },
       () => {
-        alert("Please Allow Location Permission");
+        alert(
+          "Please allow location permission to get your current location."
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
       }
     );
   };
 
   const submitComplaint = async () => {
+    if (
+      !formData.name ||
+      !formData.mobile ||
+      !formData.email ||
+      !formData.animal ||
+      !formData.condition ||
+      !formData.description ||
+      !formData.area
+    ) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    if (!photo) {
+      alert("Please select an animal photo.");
+      return;
+    }
+
+    if (!location.latitude || !location.longitude) {
+      alert("Please get your current location.");
+      return;
+    }
+
     try {
-      if (
-        !formData.name ||
-        !formData.mobile ||
-        !formData.email ||
-        !formData.area ||
-        !formData.animal ||
-        !formData.condition ||
-        !formData.description
-      ) {
-        alert("Please Fill All Fields");
-        return;
-      }
-
-      if (!photo) {
-        alert("Please Select Photo");
-        return;
-      }
-
-      if (!location.latitude || !location.longitude) {
-        alert("Please Get Your Location");
-        return;
-      }
+      setLoading(true);
 
       const data = new FormData();
 
       data.append("name", formData.name);
       data.append("mobile", formData.mobile);
       data.append("email", formData.email);
-      data.append("area", formData.area);
       data.append("animal", formData.animal);
       data.append("condition", formData.condition);
       data.append("description", formData.description);
+      data.append("area", formData.area);
       data.append("latitude", location.latitude);
       data.append("longitude", location.longitude);
       data.append("photo", photo);
@@ -88,194 +101,282 @@ function ReportAnimal({ setPage }) {
         data
       );
 
-      alert(response.data.message);
+      alert(
+        response.data.message || "Complaint submitted successfully."
+      );
 
+      // Reset form
       setFormData({
         name: "",
         mobile: "",
         email: "",
-        area: "",
         animal: "",
         condition: "",
-        description: ""
+        description: "",
+        area: "",
       });
 
       setPhoto(null);
 
       setLocation({
         latitude: "",
-        longitude: ""
+        longitude: "",
       });
 
+      // Reset file input
+      const fileInput = document.getElementById("animalPhoto");
+      if (fileInput) {
+        fileInput.value = "";
+      }
     } catch (error) {
       console.log(error);
 
       if (error.response) {
-        alert(error.response.data.message);
+        alert(
+          error.response.data.message || "Error submitting complaint."
+        );
       } else {
-        alert("Server Error");
+        alert("Server Error. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="alert alert-primary text-center">
-        <h2>🐾 Animal Complaint Registration</h2>
-      </div>
+    <div className="report-page">
 
-      <div className="container mt-3">
+      {/* HEADER */}
+      <header className="report-header">
+        <div className="header-content">
 
-        <div className="text-start">
-          <button
-            className="btn btn-secondary mb-3"
-            onClick={() => setPage("home")}
-          >
-            ⬅ Back
-          </button>
-        </div>
-
-        <div className="card shadow p-4 mt-3">
-
-          <h3 className="text-center mb-4">
-            Report Animal
-          </h3>
-
-          {/* Name */}
-          <input
-            className="form-control mb-3"
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-
-          {/* Mobile */}
-          <input
-            className="form-control mb-3"
-            type="text"
-            name="mobile"
-            placeholder="Mobile Number"
-            value={formData.mobile}
-            onChange={handleChange}
-          />
-
-          {/* Email */}
-          <input
-            className="form-control mb-3"
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-          />
-
-          {/* Animal */}
-          <input
-            className="form-control mb-3"
-            type="text"
-            name="animal"
-            placeholder="Animal Name"
-            value={formData.animal}
-            onChange={handleChange}
-          />
-
-          {/* Animal Condition */}
-          <div className="mb-3">
-
-           
-            <div>
-
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="condition"
-                  value="Dead"
-                  checked={formData.condition === "Dead"}
-                  onChange={handleChange}
-                />
-
-                <label className="form-check-label">
-                  Dead
-                </label>
-              </div>
-
-              <div className="form-check form-check-inline">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="condition"
-                  value="Injured"
-                  checked={formData.condition === "Injured"}
-                  onChange={handleChange}
-                />
-
-                <label className="form-check-label">
-                  Injured
-                </label>
-              </div>
-
-            </div>
+          <div className="paw-icon">
+            🐾
           </div>
 
-          {/* Description */}
-          <textarea
-            className="form-control mb-3"
-            rows="4"
-            name="description"
-            placeholder="Description"
-            value={formData.description}
-            onChange={handleChange}
-          />
+          <div>
+            <h1>Animal Complaint </h1>
+            <p>
+              Dead and Injured Animal Management System
+            </p>
+          </div>
 
-          {/* Area */}
-          <input
-            className="form-control mb-3"
-            type="text"
-            name="area"
-            placeholder="Area or District or City or Village"
-            value={formData.area}
-            onChange={handleChange}
-          />
+          <div className="animal-logo">
+            🐄
+            <span>CARE • PROTECT • SERVE</span>
+          </div>
 
-          {/* Photo */}
-          <input
-            className="form-control mb-3"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(e) => setPhoto(e.target.files[0])}
-          />
+        </div>
+      </header>
 
-          {/* Location */}
+      {/* YELLOW LINE */}
+      <div className="yellow-line"></div>
+
+      {/* BACK BUTTON */}
+      <div className="back-container">
+        <button
+          className="back-btn"
+          onClick={() => setPage("home")}
+        >
+          ← &nbsp; Back
+        </button>
+      </div>
+
+      {/* FORM */}
+      <main className="report-container">
+
+        <div className="report-card">
+
+          <div className="form-title">
+            <h2>Report Animal</h2>
+            <div className="title-line"></div>
+          </div>
+
+          {/* NAME */}
+          <div className="input-group-custom">
+            <span className="input-icon">👤</span>
+
+            <input
+              type="text"
+              name="name"
+              placeholder="Your Name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* MOBILE */}
+          <div className="input-group-custom">
+            <span className="input-icon">📞</span>
+
+            <input
+              type="tel"
+              name="mobile"
+              placeholder="Mobile Number"
+              value={formData.mobile}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* EMAIL */}
+          <div className="input-group-custom">
+            <span className="input-icon">✉️</span>
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* ANIMAL */}
+          <div className="input-group-custom">
+            <span className="input-icon">🐾</span>
+
+            <input
+              type="text"
+              name="animal"
+              placeholder="Animal Name"
+              value={formData.animal}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* CONDITION */}
+          <div className="condition-container">
+
+            <label className="condition-option">
+              <input
+                type="radio"
+                name="condition"
+                value="Dead"
+                checked={formData.condition === "Dead"}
+                onChange={handleChange}
+              />
+
+              <span>☠️</span>
+              Dead
+            </label>
+
+            <label className="condition-option">
+              <input
+                type="radio"
+                name="condition"
+                value="Injured"
+                checked={formData.condition === "Injured"}
+                onChange={handleChange}
+              />
+
+              <span>🩹</span>
+              Injured
+            </label>
+
+          </div>
+
+          {/* DESCRIPTION */}
+          <div className="textarea-group">
+
+            <span className="textarea-icon">
+              📋
+            </span>
+
+            <textarea
+              name="description"
+              rows="5"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleChange}
+            />
+
+          </div>
+
+          {/* AREA */}
+          <div className="input-group-custom">
+
+            <span className="input-icon">
+              📍
+            </span>
+
+            <input
+              type="text"
+              name="area"
+              placeholder="Area or District or City or Village"
+              value={formData.area}
+              onChange={handleChange}
+            />
+
+          </div>
+
+          {/* PHOTO */}
+          <div className="file-group">
+
+            <span className="input-icon">
+              📎
+            </span>
+
+            <input
+              id="animalPhoto"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) =>
+                setPhoto(e.target.files[0])
+              }
+            />
+
+          </div>
+
+          {/* LOCATION */}
           <button
-            className="btn btn-warning mb-3"
+            className="location-btn"
             onClick={getLocation}
           >
-            📍 Get Current Location
+            📍 &nbsp; Get Current Location
           </button>
 
-          <p>
-            <b>Latitude:</b> {location.latitude}
-          </p>
+          <div className="coordinates">
 
-          <p>
-            <b>Longitude:</b> {location.longitude}
-          </p>
+            <p>
+              <b>Latitude:</b>{" "}
+              {location.latitude || ""}
+            </p>
 
-          {/* Submit */}
+            <p>
+              <b>Longitude:</b>{" "}
+              {location.longitude || ""}
+            </p>
+
+          </div>
+
+          {/* SUBMIT */}
           <button
-            className="btn btn-success w-100"
+            className="submit-btn"
             onClick={submitComplaint}
+            disabled={loading}
           >
-            Submit Complaint
+            {loading
+              ? "Submitting..."
+              : "➤  Submit Complaint"}
           </button>
 
         </div>
-      </div>
-    </>
+
+      </main>
+
+      {/* FOOTER */}
+      <footer className="report-footer">
+        <div>
+          <i>
+            Be Kind to Animals. They Feel. They Matter.
+          </i>
+        </div>
+
+        <span>🐾</span>
+      </footer>
+
+    </div>
   );
 }
 
