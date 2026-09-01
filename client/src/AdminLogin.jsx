@@ -1,106 +1,178 @@
 import { useState } from "react";
 import axios from "axios";
-import Admin from "./Admin";
+import "./AdminLogin.css";
 
-function AdminLogin({ setPage }) {
+function AdminLogin({ setPage, onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [login, setLogin] = useState({
-    username: "",
-    password: ""
-  });
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  const handleChange = (e) => {
-    setLogin({
-      ...login,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const loginAdmin = async () => {
-
-    try {
-
-      const res = await axios.post(
-        "https://daims.onrender.com/admin/login",
-        login
-      );
-
-      if (res.data.success) {
-         localStorage.setItem(
-    "adminArea",
-    res.data.admin.area
-  );
-
-        alert("Login Successful");
-        setLoggedIn(true);
-
-      } else {
-
-        alert("Invalid Username or Password");
-
-      }
-
-    } catch (error) {
-
-      console.log(error);
-      alert("Server Error");
-
+    if (!username || !password) {
+      alert("Please enter username and password");
+      return;
     }
 
-  };
+    try {
+      setLoading(true);
 
-  const logout = () => {
-    setLoggedIn(false);
-  };
+      const response = await axios.post(
+        "https://daims.onrender.com/admin/login",
+        {
+          username,
+          password,
+        }
+      );
 
-  if (loggedIn) {
-    return <Admin onLogout={logout} />;
-  }
+      alert(response.data.message || "Login Successful");
+
+      // Admin area save
+      if (response.data.admin?.area) {
+        localStorage.setItem("adminArea", response.data.admin.area);
+      }
+
+      onLogin();
+    } catch (error) {
+      console.log(error);
+
+      if (error.response) {
+        alert(error.response.data.message || "Invalid username or password");
+      } else {
+        alert("Server Error. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        paddingTop: "100px"
-      }}
-    >
-      <div className="text-start">
+    <div className="admin-login-page">
 
-<button
-  className="btn btn-secondary mb-3"
-  onClick={() => setPage("home")}
->
-  ⬅Back
-</button>
-  </div>
-      <h1>🔐 Admin Login</h1>
-      
+      {/* HEADER */}
+      <header className="login-header">
+        <div className="header-content">
+          <div className="paw-icon">🐾</div>
 
-      <br />
+          <div>
+            <h1>Dead and Injured Animal Management System</h1>
+            <p>Efficient Reporting, Faster Action, Better Care.</p>
+          </div>
+        </div>
+      </header>
 
-      <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        onChange={handleChange}
-      />
+      {/* BACK BUTTON */}
+      <div className="login-back-area">
+        <button
+          className="back-button"
+          onClick={() => setPage("home")}
+        >
+          ← &nbsp; Back
+        </button>
+      </div>
 
-      <br /><br />
+      {/* LOGIN CARD */}
+      <main className="login-main">
 
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        onChange={handleChange}
-      />
+        <div className="login-card">
 
-      <br /><br />
+          {/* LOCK ICON */}
+          <div className="lock-circle">
+            🔒
+          </div>
 
-      <button onClick={loginAdmin}>
-        Login
-      </button>
+          <h2>Admin Login</h2>
+
+          <div className="title-line"></div>
+
+          <form onSubmit={handleLogin}>
+
+            {/* USERNAME */}
+            <div className="login-input-box">
+              <div className="input-icon">
+                👤
+              </div>
+
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+
+            {/* PASSWORD */}
+            <div className="login-input-box">
+              <div className="input-icon">
+                🔒
+              </div>
+
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <button
+                type="button"
+                className="password-eye"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+
+            {/* LOGIN */}
+            <button
+              type="submit"
+              className="login-button"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+          </form>
+
+        </div>
+
+      </main>
+
+      {/* FEATURES */}
+      <section className="login-features">
+
+        <div className="feature">
+          <div className="feature-icon">🛡️</div>
+          <div>
+            <strong>Secure Access</strong>
+            <span>Protected System</span>
+          </div>
+        </div>
+
+        <div className="feature">
+          <div className="feature-icon">⏱️</div>
+          <div>
+            <strong>Quick Response</strong>
+            <span>Timely Action</span>
+          </div>
+        </div>
+
+        <div className="feature">
+          <div className="feature-icon">👥</div>
+          <div>
+            <strong>Better Service</strong>
+            <span>For Animals & Citizens</span>
+          </div>
+        </div>
+
+      </section>
+
+      {/* FOOTER */}
+      <footer className="login-footer">
+        Be Kind to Animals. They Feel. They Matter. 🐾
+      </footer>
 
     </div>
   );
