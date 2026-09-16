@@ -67,7 +67,7 @@ function AdminLogin({ setPage, onLogin }) {
       <div className="login-back-area">
         <button
           className="back-button"
-          onClick={() => setPage("home")}
+         onClick={() => navigateTo("login")}
         >
           ← &nbsp; Back
         </button>

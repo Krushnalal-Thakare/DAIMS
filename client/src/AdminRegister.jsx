@@ -146,7 +146,8 @@ function AdminRegister({ setPage }) {
         }}
       >
         <button
-          onClick={() => setPage("home")}
+          
+          onClick={() => navigateTo("register")}
           style={{
             background: "white",
             color: "#086b4f",
