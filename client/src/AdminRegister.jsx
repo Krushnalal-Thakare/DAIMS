@@ -145,22 +145,7 @@ function AdminRegister({ setPage }) {
           padding: "0 20px",
         }}
       >
-        <button
-          
-          onClick={() => navigateTo("register")}
-          style={{
-            background: "white",
-            color: "#086b4f",
-            border: "1px solid #086b4f",
-            borderRadius: "7px",
-            padding: "10px 20px",
-            fontSize: "16px",
-            fontWeight: "600",
-            cursor: "pointer",
-          }}
-        >
-          ← &nbsp; Back
-        </button>
+        
       </div>
 
       {/* MAIN */}

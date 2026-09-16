@@ -58,25 +58,9 @@
   padding: 28px 40px 0;
 }
 
-.back-button {
-  background: white;
-  border: 1.5px solid #087b4d;
-  color: #075b3f;
 
-  padding: 12px 22px;
 
-  border-radius: 7px;
 
-  font-size: 18px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.back-button:hover {
-  background: #087b4d;
-  color: white;
-}
 
 /* MAIN */
 
@@ -327,10 +311,7 @@
     font-size: 14px;
   }
 
-  .login-back-area {
-    padding: 18px;
-  }
-
+  
   .login-card {
     padding: 30px 20px;
   }

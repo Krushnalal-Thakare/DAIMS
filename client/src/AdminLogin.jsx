@@ -63,15 +63,7 @@ function AdminLogin({ setPage, onLogin }) {
         </div>
       </header>
 
-      {/* BACK BUTTON */}
-      <div className="login-back-area">
-        <button
-          className="back-button"
-         onClick={() => navigateTo("login")}
-        >
-          ← &nbsp; Back
-        </button>
-      </div>
+  
 
       {/* LOGIN CARD */}
       <main className="login-main">
