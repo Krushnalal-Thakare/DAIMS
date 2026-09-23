@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+
 import ReportAnimal from "./ReportAnimal";
 import AdminRegister from "./AdminRegister";
 import AdminLogin from "./AdminLogin";
 import Admin from "./Admin";
 
 function App() {
- 
+  // Get current page from URL
   const getPageFromHash = () => {
     const hash = window.location.hash.replace("#", "");
 
@@ -21,10 +22,9 @@ function App() {
   };
 
   const [page, setPage] = useState(getPageFromHash);
-
   const [lang, setLang] = useState("en");
 
-  // Browser / Mobile Back button
+  // Browser / Mobile Back Button
   useEffect(() => {
     const handleBackButton = () => {
       setPage(getPageFromHash());
@@ -37,7 +37,7 @@ function App() {
     };
   }, []);
 
-  // Page change function
+  // Navigate between pages
   const navigate = (nextPage) => {
     window.history.pushState(
       { page: nextPage },
@@ -48,23 +48,17 @@ function App() {
     setPage(nextPage);
   };
 
-  // -----------------------------
-  // REPORT PAGE
-  // -----------------------------
+  // Report Page
   if (page === "report") {
     return <ReportAnimal setPage={navigate} />;
   }
 
-  // -----------------------------
-  // ADMIN REGISTER PAGE
-  // -----------------------------
+  // Admin Registration Page
   if (page === "register") {
     return <AdminRegister setPage={navigate} />;
   }
 
-  // -----------------------------
-  // ADMIN LOGIN PAGE
-  // -----------------------------
+  // Admin Login Page
   if (page === "login") {
     return (
       <AdminLogin
@@ -74,9 +68,7 @@ function App() {
     );
   }
 
-  // -----------------------------
-  // ADMIN DASHBOARD
-  // -----------------------------
+  // Admin Dashboard
   if (page === "admin") {
     return (
       <Admin
@@ -85,10 +77,7 @@ function App() {
     );
   }
 
-  // -----------------------------
-  // HOME PAGE
-  // -----------------------------
-
+  // Language Translations
   const translations = {
     en: {
       title: "Dead & Injured Animal Management System",
@@ -127,6 +116,7 @@ function App() {
     <div
       style={{
         minHeight: "100vh",
+        width: "100%",
         backgroundImage:
           "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/animal-bg.jpg')",
         backgroundSize: "cover",
@@ -134,49 +124,62 @@ function App() {
         backgroundAttachment: "fixed",
         display: "flex",
         flexDirection: "column",
+        boxSizing: "border-box",
       }}
     >
       {/* ================= NAVBAR ================= */}
+
       <nav
         style={{
           width: "100%",
           background: "rgba(255,255,255,0.96)",
-          padding: "12px 25px",
+          padding: "12px clamp(10px, 4vw, 25px)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
           flexWrap: "wrap",
-          gap: "10px",
+          gap: "12px",
+          boxSizing: "border-box",
         }}
       >
-        {/* LOGO / NAME */}
+        {/* Logo */}
+
         <div
           style={{
             fontWeight: "bold",
-            fontSize: "20px",
+            fontSize: "clamp(18px, 3vw, 22px)",
             color: "#1b5e20",
           }}
         >
           🐾 DAIMS
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* Right Side */}
+
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "15px",
+            justifyContent: "center",
+            gap: "10px",
             flexWrap: "wrap",
           }}
         >
-          {/* LANGUAGE */}
-          <div>
+          {/* Language */}
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "4px",
+            }}
+          >
             <span
               style={{
                 fontSize: "13px",
-                marginRight: "5px",
                 color: "#555",
+                marginRight: "3px",
               }}
             >
               {text.selectLanguage}:
@@ -188,10 +191,10 @@ function App() {
                 border: "none",
                 background: lang === "en" ? "#2e7d32" : "#eee",
                 color: lang === "en" ? "white" : "#333",
-                padding: "5px 9px",
+                padding: "6px 9px",
                 borderRadius: "5px",
-                marginRight: "3px",
                 cursor: "pointer",
+                fontSize: "12px",
               }}
             >
               English
@@ -203,10 +206,10 @@ function App() {
                 border: "none",
                 background: lang === "mr" ? "#2e7d32" : "#eee",
                 color: lang === "mr" ? "white" : "#333",
-                padding: "5px 9px",
+                padding: "6px 9px",
                 borderRadius: "5px",
-                marginRight: "3px",
                 cursor: "pointer",
+                fontSize: "12px",
               }}
             >
               मराठी
@@ -218,42 +221,47 @@ function App() {
                 border: "none",
                 background: lang === "hi" ? "#2e7d32" : "#eee",
                 color: lang === "hi" ? "white" : "#333",
-                padding: "5px 9px",
+                padding: "6px 9px",
                 borderRadius: "5px",
                 cursor: "pointer",
+                fontSize: "12px",
               }}
             >
-             हिन्दी
+              हिन्दी
             </button>
           </div>
 
-          {/* ADMIN REGISTRATION */}
+          {/* Admin Registration */}
+
           <button
             onClick={() => navigate("register")}
             style={{
               border: "none",
               background: "transparent",
               color: "#1b5e20",
-              fontSize: "14px",
+              fontSize: "clamp(11px, 2vw, 14px)",
               cursor: "pointer",
               textDecoration: "underline",
               fontWeight: "500",
+              padding: "5px",
             }}
           >
             {text.register}
           </button>
 
-          {/* ADMIN LOGIN */}
+          {/* Admin Login */}
+
           <button
             onClick={() => navigate("login")}
             style={{
               border: "none",
               background: "transparent",
               color: "#1b5e20",
-              fontSize: "14px",
+              fontSize: "clamp(11px, 2vw, 14px)",
               cursor: "pointer",
               textDecoration: "underline",
               fontWeight: "500",
+              padding: "5px",
             }}
           >
             {text.login}
@@ -262,53 +270,63 @@ function App() {
       </nav>
 
       {/* ================= MAIN ================= */}
+
       <main
         style={{
           flex: 1,
+          width: "100%",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: "40px 20px",
+          padding: "clamp(20px, 5vw, 40px) 12px",
+          boxSizing: "border-box",
         }}
       >
         <div
           style={{
             width: "100%",
             maxWidth: "700px",
+            boxSizing: "border-box",
             background: "rgba(255,255,255,0.94)",
             borderRadius: "18px",
-            padding: "45px 30px",
+            padding:
+              "clamp(20px, 5vw, 45px) clamp(15px, 5vw, 30px)",
             textAlign: "center",
             boxShadow: "0 10px 35px rgba(0,0,0,0.3)",
           }}
         >
-          {/* ICON */}
+          {/* Icon */}
+
           <div
             style={{
-              fontSize: "60px",
+              fontSize: "clamp(40px, 8vw, 60px)",
               marginBottom: "10px",
             }}
           >
             🐾
           </div>
 
-          {/* TITLE */}
+          {/* Title */}
+
           <h1
             style={{
               color: "#1b5e20",
-              fontSize: "32px",
-              marginBottom: "15px",
+              fontSize: "clamp(22px, 4vw, 32px)",
+              lineHeight: "1.3",
+              margin: "0 0 15px",
               fontWeight: "700",
+              overflowWrap: "break-word",
             }}
           >
             {text.title}
           </h1>
 
-          {/* SUBTITLE */}
+          {/* Subtitle */}
+
           <p
             style={{
               color: "#555",
-              fontSize: "17px",
+              fontSize: "clamp(14px, 2vw, 17px)",
               lineHeight: "1.6",
               marginBottom: "30px",
             }}
@@ -316,26 +334,22 @@ function App() {
             {text.subtitle}
           </p>
 
-          {/* REPORT BUTTON */}
+          {/* Report Button */}
+
           <button
             onClick={() => navigate("report")}
             style={{
+              width: "100%",
+              maxWidth: "300px",
               background: "#2e7d32",
               color: "white",
               border: "none",
               borderRadius: "10px",
-              padding: "15px 45px",
-              fontSize: "19px",
+              padding: "14px 20px",
+              fontSize: "clamp(15px, 3vw, 19px)",
               fontWeight: "bold",
               cursor: "pointer",
               boxShadow: "0 5px 12px rgba(0,0,0,0.2)",
-              transition: "0.2s",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = "#1b5e20";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = "#2e7d32";
             }}
           >
             📝 {text.report}
@@ -344,13 +358,17 @@ function App() {
       </main>
 
       {/* ================= FOOTER ================= */}
+
       <footer
         style={{
+          width: "100%",
           background: "rgba(0,0,0,0.75)",
           color: "white",
           textAlign: "center",
-          padding: "15px",
-          fontSize: "14px",
+          padding: "15px 10px",
+          fontSize: "clamp(11px, 2vw, 14px)",
+          lineHeight: "1.5",
+          boxSizing: "border-box",
         }}
       >
         © {new Date().getFullYear()} DAIMS - Dead & Injured Animal
