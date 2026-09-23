@@ -172,15 +172,7 @@ function ReportAnimal({ setPage }) {
       {/* YELLOW LINE */}
       <div className="yellow-line"></div>
 
-      {/* BACK BUTTON */}
-      <div className="back-container">
-        <button
-          className="back-btn"
-          onClick={() => setPage("home")}
-        >
-          ← &nbsp; Back
-        </button>
-      </div>
+      
 
       {/* FORM */}
       <main className="report-container">
