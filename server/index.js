@@ -3,94 +3,127 @@ const cors = require("cors");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
-require("dotenv").config();
+const dotenv = require("dotenv");
 
 const Complaint = require("./models/Complaint");
 const Admin = require("./models/Admin");
 
+dotenv.config();
+
 const app = express();
+
+// ===============================
+// MIDDLEWARE
+// ===============================
 
 app.use(cors());
 app.use(express.json());
+
 app.use("/uploads", express.static("uploads"));
 
-// ==========================
-// MongoDB
-// ==========================
+// ===============================
+// MONGODB CONNECTION
+// ===============================
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB Connected");
+    console.log("✅ MongoDB Connected");
   })
   .catch((err) => {
-    console.log("MongoDB Error:", err);
+    console.log("❌ MongoDB Connection Error:", err);
   });
 
-// ==========================
-// Email
-// ==========================
+// ===============================
+// MULTER
+// ===============================
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+
+  filename: function (req, file, cb) {
+    const uniqueName =
+      Date.now() + "-" + Math.round(Math.random() * 1e9);
+
+    cb(null, uniqueName + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+// ===============================
+// GMAIL SMTP
+// ===============================
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
+  family: 4,
+
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  family: 4,
 });
 
 transporter.verify((error) => {
   if (error) {
     console.log("❌ Email Configuration Error:", error);
   } else {
-    console.log("✅ Email Server Ready");
+    console.log("✅ Gmail Email Server Ready");
   }
 });
-// ==========================
-// Multer
-// ==========================
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
-
-// ==========================
-// Home
-// ==========================
+// ===============================
+// TEST ROUTE
+// ===============================
 
 app.get("/", (req, res) => {
-  res.send("DAIMS Server Running");
+  res.json({
+    success: true,
+    message: "DAIMS Backend Running",
+  });
 });
 
-// ==========================
-// Admin Register
-// ==========================
+// ===============================
+// ADMIN REGISTER
+// ===============================
 
 app.post("/admin/register", async (req, res) => {
   try {
-    const exist = await Admin.findOne({
-      username: req.body.username,
+    const {
+      organization,
+      username,
+      address,
+      area,
+      email,
+      purpose,
+      password,
+    } = req.body;
+
+    const existingAdmin = await Admin.findOne({
+      username,
     });
 
-    if (exist) {
-      return res.json({
+    if (existingAdmin) {
+      return res.status(400).json({
         success: false,
-        message: "Username Already Exists",
+        message: "Username already exists",
       });
     }
 
-    const admin = new Admin(req.body);
+    const admin = new Admin({
+      organization,
+      username,
+      address,
+      area,
+      email,
+      purpose,
+      password,
+    });
 
     await admin.save();
 
@@ -99,168 +132,245 @@ app.post("/admin/register", async (req, res) => {
       message: "Admin Registered Successfully",
     });
   } catch (err) {
-    console.log("Register Error:", err);
+    console.log("REGISTER ERROR:", err);
 
     res.status(500).json({
       success: false,
-      message: "Registration Failed",
+      message: "Error Registering Admin",
     });
   }
 });
 
-// ==========================
-// Admin Login
-// ==========================
+// ===============================
+// ADMIN LOGIN
+// ===============================
 
 app.post("/admin/login", async (req, res) => {
   try {
+    const { username, password } = req.body;
+
     const admin = await Admin.findOne({
-      username: req.body.username,
-      password: req.body.password,
+      username,
+      password,
     });
 
-    if (admin) {
-      res.json({
-        success: true,
-        message: "Login Successful",
-        admin: admin,
-      });
-    } else {
-      res.json({
+    if (!admin) {
+      return res.status(401).json({
         success: false,
         message: "Invalid Username or Password",
       });
     }
+
+    res.json({
+      success: true,
+      message: "Login Successful",
+      admin: {
+        id: admin._id,
+        organization: admin.organization,
+        username: admin.username,
+        address: admin.address,
+        area: admin.area,
+        email: admin.email,
+        purpose: admin.purpose,
+      },
+    });
   } catch (err) {
-    console.log("Login Error:", err);
+    console.log("LOGIN ERROR:", err);
 
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: "Login Error",
     });
   }
 });
 
-// ==========================
-// Save Complaint
-// ==========================
+// ===============================
+// CREATE COMPLAINT
+// ===============================
 
 app.post(
   "/complaint",
   upload.single("photo"),
   async (req, res) => {
     try {
+      console.log("Complaint Received");
+
+      const {
+        name,
+        mobile,
+        email,
+        animal,
+        condition,
+        description,
+        area,
+        latitude,
+        longitude,
+      } = req.body;
+
+      // -------------------------------
+      // VALIDATION
+      // -------------------------------
+
+      if (
+        !name ||
+        !mobile ||
+        !email ||
+        !animal ||
+        !condition ||
+        !description ||
+        !area ||
+        !latitude ||
+        !longitude
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required",
+        });
+      }
+
+      // -------------------------------
+      // PHOTO
+      // -------------------------------
+
+      const photo = req.file
+        ? `/uploads/${req.file.filename}`
+        : "";
+
+      // -------------------------------
+      // SAVE COMPLAINT
+      // -------------------------------
+
       const complaint = new Complaint({
-        name: req.body.name,
-        mobile: req.body.mobile,
-        email: req.body.email,
-        animal: req.body.animal,
-        condition: req.body.condition,
-        description: req.body.description,
-        area: req.body.area,
-        latitude: req.body.latitude,
-        longitude: req.body.longitude,
-        photo: req.file ? req.file.filename : "",
+        name,
+        mobile,
+        email,
+        animal,
+        condition,
+        description,
+        area,
+        latitude,
+        longitude,
+        photo,
       });
 
       await complaint.save();
 
-      console.log("Complaint Saved");
-      console.log("Complaint Area:", req.body.area);
+      console.log("Complaint Saved:", complaint._id);
 
-      // Find admin from same area
+      // -------------------------------
+      // FIND ADMIN BY AREA
+      // -------------------------------
+
       const admin = await Admin.findOne({
-        area: req.body.area,
+        area: area,
       });
 
-      console.log("Admin Found:", admin);
+      if (admin) {
+        console.log("Sending Email To:", admin.email);
 
-      if (admin && admin.email) {
         try {
-          console.log("Sending Email To:", admin.email);
-
           await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: admin.email,
-            subject: "New Animal Complaint",
 
-            text: `
-New Animal Complaint
+            subject: "New Animal Complaint - DAIMS",
 
-Area: ${req.body.area}
+            html: `
+              <h2>New Animal Complaint</h2>
 
-Animal: ${req.body.animal}
+              <p><b>Name:</b> ${name}</p>
+              <p><b>Mobile:</b> ${mobile}</p>
+              <p><b>Email:</b> ${email}</p>
+              <p><b>Animal:</b> ${animal}</p>
+              <p><b>Condition:</b> ${condition}</p>
+              <p><b>Area:</b> ${area}</p>
 
-Reporter: ${req.body.name}
+              <p>
+                <b>Description:</b><br>
+                ${description}
+              </p>
 
-Mobile: ${req.body.mobile}
+              <p>
+                <b>Latitude:</b> ${latitude}<br>
+                <b>Longitude:</b> ${longitude}
+              </p>
 
-Email: ${req.body.email}
-
-Description:
-
-${req.body.description}
-
-Location:
-
-https://www.google.com/maps?q=${req.body.latitude},${req.body.longitude}
-`,
+              <p>
+                Please check the DAIMS Admin Panel.
+              </p>
+            `,
           });
 
-          console.log("Admin Email Sent Successfully");
+          console.log("✅ Admin Email Sent");
         } catch (emailError) {
-          console.log("Admin Email Error:", emailError);
+          console.log(
+            "❌ Admin Email Error:",
+            emailError
+          );
         }
       } else {
-        console.log("No Admin Found For This Area");
+        console.log(
+          "⚠️ No Admin Found For This Area:",
+          area
+        );
       }
 
       res.json({
         success: true,
-        message: "Complaint Saved Successfully",
+        message: "Complaint Submitted Successfully",
       });
     } catch (err) {
-      console.log("Complaint Error:", err);
+      console.log("COMPLAINT ERROR:", err);
 
       res.status(500).json({
         success: false,
-        message: "Error Saving Complaint",
+        message: "Error Submitting Complaint",
       });
     }
   }
 );
 
-// ==========================
-// Get Complaints By Area
-// ==========================
+// ===============================
+// GET COMPLAINTS BY AREA
+// ===============================
 
 app.get("/complaints/:area", async (req, res) => {
   try {
     const complaints = await Complaint.find({
       area: req.params.area,
+    }).sort({
+      _id: -1,
     });
 
-    res.json(complaints);
+    res.json({
+      success: true,
+      complaints,
+    });
   } catch (err) {
-    console.log("Fetch Complaints Error:", err);
+    console.log("GET COMPLAINT ERROR:", err);
 
     res.status(500).json({
+      success: false,
       message: "Error Fetching Complaints",
     });
   }
 });
 
-// ==========================
+// ===============================
 // DELETE COMPLAINT
-// ==========================
+// ===============================
 
 app.delete("/complaint/:id", async (req, res) => {
   try {
-    console.log("DELETE REQUEST:", req.params.id);
-
-    const complaint = await Complaint.findByIdAndDelete(
+    console.log(
+      "DELETE REQUEST:",
       req.params.id
     );
+
+    const complaint =
+      await Complaint.findByIdAndDelete(
+        req.params.id
+      );
 
     if (!complaint) {
       return res.status(404).json({
@@ -269,7 +379,10 @@ app.delete("/complaint/:id", async (req, res) => {
       });
     }
 
-    console.log("Complaint Deleted:", complaint._id);
+    console.log(
+      "Complaint Deleted:",
+      complaint._id
+    );
 
     res.json({
       success: true,
@@ -285,21 +398,20 @@ app.delete("/complaint/:id", async (req, res) => {
   }
 });
 
-// ==========================
-// Update Complaint Status
-// ==========================
+// ===============================
+// UPDATE COMPLAINT STATUS
+// ===============================
 
 app.put("/complaint/:id", async (req, res) => {
   try {
-    const complaint = await Complaint.findByIdAndUpdate(
-      req.params.id,
-      {
-        status: req.body.status,
-      },
-      {
-        new: true,
-      }
-    );
+    const { status } = req.body;
+
+    const complaint =
+      await Complaint.findByIdAndUpdate(
+        req.params.id,
+        { status },
+        { new: true }
+      );
 
     if (!complaint) {
       return res.status(404).json({
@@ -308,41 +420,61 @@ app.put("/complaint/:id", async (req, res) => {
       });
     }
 
-    // Send email to reporter when completed
+    console.log(
+      "Complaint Status:",
+      status
+    );
+
+    // -------------------------------
+    // SEND COMPLETION EMAIL
+    // -------------------------------
+
     if (
-      req.body.status === "Completed" &&
+      status === "Completed" &&
       complaint.email
     ) {
       try {
-        console.log(
-          "Sending completion mail to:",
-          complaint.email
-        );
-
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
           to: complaint.email,
-          subject: "Animal Complaint Completed",
 
-          text: `
-Dear ${complaint.name},
+          subject:
+            "DAIMS Complaint Completed",
 
-Thank you for reporting the animal.
+          html: `
+            <h2>Complaint Completed</h2>
 
-Your complaint has been completed successfully.
+            <p>Hello ${complaint.name},</p>
 
-Animal: ${complaint.animal}
+            <p>
+              Your animal complaint has been
+              successfully completed.
+            </p>
 
-Status: Completed
+            <p>
+              <b>Animal:</b> ${complaint.animal}
+            </p>
 
-DAIMS Team
-`,
+            <p>
+              <b>Area:</b> ${complaint.area}
+            </p>
+
+            <p>
+              Thank you for helping animals.
+            </p>
+
+            <p>
+              <b>DAIMS Team</b>
+            </p>
+          `,
         });
 
-        console.log("Completion Email Sent Successfully");
+        console.log(
+          "✅ Completion Email Sent"
+        );
       } catch (emailError) {
         console.log(
-          "Completion Email Error:",
+          "❌ Completion Email Error:",
           emailError
         );
       }
@@ -350,24 +482,30 @@ DAIMS Team
 
     res.json({
       success: true,
-      message: "Status Updated Successfully",
+      message: "Complaint Updated Successfully",
+      complaint,
     });
   } catch (err) {
-    console.log("Status Update Error:", err);
+    console.log(
+      "UPDATE COMPLAINT ERROR:",
+      err
+    );
 
     res.status(500).json({
       success: false,
-      message: "Error Updating Status",
+      message: "Error Updating Complaint",
     });
   }
 });
 
-// ==========================
-// Start Server
-// ==========================
+// ===============================
+// START SERVER
+// ===============================
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server Running on Port ${PORT}`);
+  console.log(
+    `🚀 DAIMS Server Running On Port ${PORT}`
+  );
 });
