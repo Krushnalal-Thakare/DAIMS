@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./ReportAnimal.css";
 
-function ReportAnimal({ setPage }) {
+function ReportAnimal() {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -102,10 +102,10 @@ function ReportAnimal({ setPage }) {
       );
 
       alert(
-        response.data.message || "Complaint submitted successfully."
+        response.data.message ||
+          "Complaint submitted successfully."
       );
 
-      // Reset form
       setFormData({
         name: "",
         mobile: "",
@@ -123,8 +123,9 @@ function ReportAnimal({ setPage }) {
         longitude: "",
       });
 
-      // Reset file input
-      const fileInput = document.getElementById("animalPhoto");
+      const fileInput =
+        document.getElementById("animalPhoto");
+
       if (fileInput) {
         fileInput.value = "";
       }
@@ -133,7 +134,8 @@ function ReportAnimal({ setPage }) {
 
       if (error.response) {
         alert(
-          error.response.data.message || "Error submitting complaint."
+          error.response.data.message ||
+            "Error submitting complaint."
         );
       } else {
         alert("Server Error. Please try again.");
@@ -146,35 +148,26 @@ function ReportAnimal({ setPage }) {
   return (
     <div className="report-page">
 
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
+
       <header className="report-header">
         <div className="header-content">
 
-          <div className="paw-icon">
+          <div className="header-paw">
             🐾
           </div>
 
-          <div>
-            <h1>Animal Complaint </h1>
-            <p>
-              Dead and Injured Animal Management System
-            </p>
-          </div>
-
-          <div className="animal-logo">
-            🐄
-            <span>CARE • PROTECT • SERVE</span>
-          </div>
+          <h1>
+            Dead and Injured Animal Management System
+          </h1>
 
         </div>
       </header>
 
-      {/* YELLOW LINE */}
       <div className="yellow-line"></div>
 
-      
+      {/* ================= FORM ================= */}
 
-      {/* FORM */}
       <main className="report-container">
 
         <div className="report-card">
@@ -185,6 +178,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* NAME */}
+
           <div className="input-group-custom">
             <span className="input-icon">👤</span>
 
@@ -198,6 +192,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* MOBILE */}
+
           <div className="input-group-custom">
             <span className="input-icon">📞</span>
 
@@ -211,6 +206,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* EMAIL */}
+
           <div className="input-group-custom">
             <span className="input-icon">✉️</span>
 
@@ -224,6 +220,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* ANIMAL */}
+
           <div className="input-group-custom">
             <span className="input-icon">🐾</span>
 
@@ -237,6 +234,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* CONDITION */}
+
           <div className="condition-container">
 
             <label className="condition-option">
@@ -244,12 +242,17 @@ function ReportAnimal({ setPage }) {
                 type="radio"
                 name="condition"
                 value="Dead"
-                checked={formData.condition === "Dead"}
+                checked={
+                  formData.condition === "Dead"
+                }
                 onChange={handleChange}
               />
 
-              <span>☠️</span>
-              Dead
+              <span className="condition-icon">
+                🐾
+              </span>
+
+              <span>Dead</span>
             </label>
 
             <label className="condition-option">
@@ -257,17 +260,23 @@ function ReportAnimal({ setPage }) {
                 type="radio"
                 name="condition"
                 value="Injured"
-                checked={formData.condition === "Injured"}
+                checked={
+                  formData.condition === "Injured"
+                }
                 onChange={handleChange}
               />
 
-              <span>🩹</span>
-              Injured
+              <span className="condition-icon">
+                🩹
+              </span>
+
+              <span>Injured</span>
             </label>
 
           </div>
 
           {/* DESCRIPTION */}
+
           <div className="textarea-group">
 
             <span className="textarea-icon">
@@ -285,6 +294,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* AREA */}
+
           <div className="input-group-custom">
 
             <span className="input-icon">
@@ -302,6 +312,7 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* PHOTO */}
+
           <div className="file-group">
 
             <span className="input-icon">
@@ -321,9 +332,11 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* LOCATION */}
+
           <button
             className="location-btn"
             onClick={getLocation}
+            type="button"
           >
             📍 &nbsp; Get Current Location
           </button>
@@ -343,10 +356,12 @@ function ReportAnimal({ setPage }) {
           </div>
 
           {/* SUBMIT */}
+
           <button
             className="submit-btn"
             onClick={submitComplaint}
             disabled={loading}
+            type="button"
           >
             {loading
               ? "Submitting..."
@@ -354,18 +369,64 @@ function ReportAnimal({ setPage }) {
           </button>
 
         </div>
-
       </main>
 
-      {/* FOOTER */}
+      {/* ================= FOOTER ================= */}
+
       <footer className="report-footer">
-        <div>
-          <i>
-            Be Kind to Animals. They Feel. They Matter.
-          </i>
+
+        <div className="footer-item">
+          <div className="footer-icon">
+            🛡️
+          </div>
+
+          <div>
+            <strong>
+              Secure & Reliable
+            </strong>
+
+            <span>
+              Your data is protected
+            </span>
+          </div>
         </div>
 
-        <span>🐾</span>
+        <div className="footer-divider"></div>
+
+        <div className="footer-item">
+          <div className="footer-icon">
+            🕐
+          </div>
+
+          <div>
+            <strong>
+              Quick Response
+            </strong>
+
+            <span>
+              Timely action assured
+            </span>
+          </div>
+        </div>
+
+        <div className="footer-divider"></div>
+
+        <div className="footer-item">
+          <div className="footer-icon">
+            🤲
+          </div>
+
+          <div>
+            <strong>
+              Compassion First
+            </strong>
+
+            <span>
+              For every animal, always
+            </span>
+          </div>
+        </div>
+
       </footer>
 
     </div>
